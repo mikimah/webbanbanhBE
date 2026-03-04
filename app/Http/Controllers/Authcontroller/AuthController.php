@@ -11,6 +11,13 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function test(Request $request)
+    {
+        return response()->json([
+            'status' => 200,
+            'message' => 'Test successful',
+        ]);
+    }
     public function user_register(Request $request)
     {
         $request->validate([

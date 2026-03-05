@@ -34,10 +34,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --optimize-autoloader --no-dev
 
 # 👉 Thêm các dòng này
-ENV APP_ENV=production
-RUN php artisan config:clear
-RUN php artisan route:clear
-RUN php artisan cache:clear
-RUN php artisan config:cache
+#ENV APP_ENV=production
+#RUN php artisan config:clear
+#RUN php artisan route:clear
+#RUN php artisan cache:clear
+#RUN php artisan config:cache
 
 EXPOSE 80

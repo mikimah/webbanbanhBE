@@ -11,6 +11,10 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/db-test', function () {
+    return DB::connection()->getPdo();
+});
+
 Route::get('test',[AuthController::class, 'test']); 
 Route::post('register', [AuthController::class, 'user_register']);
 Route::post('login', [AuthController::class, 'user_login']);

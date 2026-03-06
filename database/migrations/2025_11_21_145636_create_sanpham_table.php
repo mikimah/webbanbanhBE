@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('GiaSP');
             $table->string('HinhSP', 200)->nullable();
             $table->foreignId('MaDM')
-                    ->constrained('DanhMuc')
+                    ->constrained('DanhMuc','MaDM')
                     ->onDelete('cascade');
         });
     }

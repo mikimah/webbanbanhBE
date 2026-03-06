@@ -18,10 +18,10 @@ return new class extends Migration
             $table->dateTime('NgayDat');
             $table->string('TrangThai', 20);
             $table->foreignId('MaND')->nullable()
-                    ->constrained('NguoiDung')       // FK tới bảng NguoiDung
+                    ->constrained('NguoiDung','MaND')       // FK tới bảng NguoiDung
                     ->onDelete('cascade'); 
             $table->foreignId('MaKM')->nullable()
-                    ->constrained('KhuyenMai')       // FK tới bảng KhuyenMai
+                    ->constrained('KhuyenMai', 'MaKM')       // FK tới bảng KhuyenMai
                     ->onDelete('cascade'); 
         });
     }

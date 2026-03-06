@@ -18,6 +18,11 @@ class AuthController extends Controller
             'message' => 'Test successful',
         ]);
     }
+
+    public function get_test_user(){
+        
+    }
+
     public function user_register(Request $request)
     {
         $request->validate([

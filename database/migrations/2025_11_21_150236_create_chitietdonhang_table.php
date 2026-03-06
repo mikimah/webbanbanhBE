@@ -16,10 +16,10 @@ return new class extends Migration
             $table->integer('SoLuong');
             $table->integer('DonGia');
             $table->foreignId('MaDH')
-                    ->constrained('DonHang')
+                    ->constrained('DonHang','MaDH')
                     ->onDelete('cascade');
             $table->foreignId('MaSP')
-                    ->constrained('SanPham')
+                    ->constrained('SanPham','MaSP')
                     ->onDelete('cascade');
         });
     }

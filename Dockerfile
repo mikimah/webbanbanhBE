@@ -33,7 +33,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-RUN php artisan storage:link || true && apache2-foreground
+#RUN php artisan storage:link || true && apache2-foreground
 
 
 EXPOSE 80

@@ -48,37 +48,53 @@ class AuthController extends Controller
             'message'=>'Đăng ký thành công',
         ]);
     }
-    public function user_login(Request $request){
-        $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string',
-        ],[
-            'email.required' => 'Email không được để trống',
-            'password.required' => 'Mật khẩu không được để trống',
-        ]);
 
-        $user = User::where('Email', $request->email)->first();
 
-        if (!$user) {
-            throw ValidationException::withMessages([
-                'email' => ['Email hoặc mật khẩu không đúng'],
-            ]);
-        }
+    // public function user_login(Request $request){
+    //     $request->validate([
+    //         'email' => 'required|string',
+    //         'password' => 'required|string',
+    //     ],[
+    //         'email.required' => 'Email không được để trống',
+    //         'password.required' => 'Mật khẩu không được để trống',
+    //     ]);
+
+    //     $user = User::where('Email', $request->email)->first();
+
+    //     if (!$user) {
+    //         throw ValidationException::withMessages([
+    //             'email' => ['Email hoặc mật khẩu không đúng'],
+    //         ]);
+    //     }
 
     
-        if (!Hash::check($request->password, $user->MatKhau)) {
-            throw ValidationException::withMessages([
-                'password' => ['Email hoặc mật khẩu không đúng'],
-            ]);
-        }
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json([
-            'status'=>200,
-            'message'=>'Đăng nhập thành công',
-            'access_token' => $token,
-            'user' => $user,
+    //     if (!Hash::check($request->password, $user->MatKhau)) {
+    //         throw ValidationException::withMessages([
+    //             'password' => ['Email hoặc mật khẩu không đúng'],
+    //         ]);
+    //     }
+    //     $token = $user->createToken('auth_token')->plainTextToken;
+    //     return response()->json([
+    //         'status'=>200,
+    //         'message'=>'Đăng nhập thành công',
+    //         'access_token' => $token,
+    //         'user' => $user,
             
-        ]);
+    //     ]);
+    // }
+
+    public function user_login(Request $request){
+
+    $user = User::where('Email', $request->email)->first();
+
+    if(!$user){
+        return response()->json(['message'=>'not found'],404);
+    }
+
+    return response()->json([
+        'status'=>200,
+        'user'=>$user
+    ]);
     }
     public function user_logout(Request $request){
         $request->user()->currentAccessToken()->delete();

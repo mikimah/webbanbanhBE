@@ -15,11 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*','register' ,'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://webbanbanh-fe.vercel.app',],
+    'allowed_origins' => ['https://webbanbanh-fe.vercel.app'],
 
     'allowed_origins_patterns' => [],
 

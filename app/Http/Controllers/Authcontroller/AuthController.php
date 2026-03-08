@@ -23,6 +23,32 @@ class AuthController extends Controller
         
     }
 
+    // public function user_register(Request $request)
+    // {
+    //     $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|string|email|max:255|unique:NguoiDung,Email',
+    //         'password' => 'required|string|min:6|confirmed',
+    //     ],[
+    //         'name.required' => 'Tên không được để trống',
+    //         'email.required' => 'Email không được để trống',
+    //         'email.email' => 'Email không đúng định dạng',
+    //         'email.unique' => 'Email đã tồn tại',
+    //         'password.required' => 'Mật khẩu không được để trống',
+    //         'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
+    //         'password.confirmed' => 'Xác nhận mật khẩu không khớp',
+    //     ]);
+    //     $user = User::create([
+    //         'HoTen' => $request->name,
+    //         'Email' => $request->email,
+    //         'MatKhau' => Hash::make($request->password),
+    //     ]);
+    //     return response()->json([
+    //         'status'=>200,
+    //         'message'=>'Đăng ký thành công',
+    //     ]);
+    // }
+
     public function user_register(Request $request)
     {
         $request->validate([
@@ -41,7 +67,7 @@ class AuthController extends Controller
         $user = User::create([
             'HoTen' => $request->name,
             'Email' => $request->email,
-            'MatKhau' => Hash::make($request->password),
+            'MatKhau' => $request->password,
         ]);
         return response()->json([
             'status'=>200,

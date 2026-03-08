@@ -63,6 +63,11 @@ class User extends Authenticatable
         return $this->MatKhau;
     }
 
+    public function getAuthIdentifierName()
+    {
+        return 'MaND';
+    }
+
     public function donHang()
     {
         return $this->hasMany(DonHang::class, 'MaND', 'MaND');

@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['https://webbanbanh-fe.vercel.app',],
 
     'allowed_origins_patterns' => [],
 

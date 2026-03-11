@@ -5,32 +5,29 @@ namespace App\Http\Controllers;
 use App\Models\DanhMuc;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
+// use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class DanhMucController extends Controller
 {
-    public function add(Request $request){
-         $request->validate([
-        'name' => 'required|string|max:30',
-        'image' => 'required|image|mimes:jpg,jpeg,png',
-        ],[
-            'name.required'=>'Tên không được để trống',
-            'image.required'=>'Hình ảnh không được để trống'
+   public function add(Request $request) {
+        $request->validate([
+            'name' => 'required|string|max:30',
+            'image' => 'required|string',
         ]);
 
-        $path = $request->file('image')->store('images', 'public');
+            $category = DanhMuc::create([
+                'TenDM' => $request->name,
+                'HinhDM' => $request->image // Lưu link https://... vào DB
+            ]);
 
-        $product = DanhMuc::create([
-            'TenDM' => $request->name,
-            'HinhDM' => $path,   
-        ]);
-
-        return response()->json([
-            'status'=>200,
-            'message' => "Thêm danh mục thành công",
-            'product' => $product,
-            'image_url' => asset('storage/' . $path)  // gửi URL đầy đủ cho frontend
-        ]);
+            return response()->json([
+                'status' => 200,
+                'message' => "Thêm danh mục thành công",
+                'category' => $category
+            ]);
     }
+
+ 
 
     public function getById($id){
         $item = DanhMuc::find($id);
@@ -57,12 +54,6 @@ class DanhMucController extends Controller
                 'items'  => []
             ]);
         }
-
-        $items=$items->map(
-        function ($item) {
-            $item->image_url = asset('storage/' . $item->HinhDM);
-            return $item;
-        });
 
         return response()->json([
             'status'=>200,

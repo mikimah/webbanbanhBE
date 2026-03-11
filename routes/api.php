@@ -15,7 +15,10 @@ Route::get('/db-test', function () {
     return DB::connection()->getPdo();
 });
 
-Route::get('test',[AuthController::class, 'test']); 
+Route::get('test',[AuthController::class, 'test']);
+Route::get('users',[AuthController::class, 'getAllUsers']);
+Route::get('users/{id}',[AuthController::class, 'getUserById']);
+
 Route::post('register', [AuthController::class, 'user_register']);
 Route::post('login', [AuthController::class, 'user_login']);
 Route::post('logout', [AuthController::class, 'user_logout'])->middleware('auth:sanctum');

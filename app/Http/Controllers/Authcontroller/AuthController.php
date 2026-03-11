@@ -19,8 +19,28 @@ class AuthController extends Controller
         ]);
     }
 
-    public function get_test_user(){
-        
+    public function getAllUsers()
+    {
+        $users = User::all();
+        return response()->json([
+            'status' => 200,
+            'data' => $users,
+        ]);
+    }
+
+    public function getUserById($id)
+    {
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy người dùng',
+            ]);
+        }
+        return response()->json([
+            'status' => 200,
+            'data' => $user,
+        ]);
     }
 
     public function user_register(Request $request)

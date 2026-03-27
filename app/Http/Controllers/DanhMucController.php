@@ -174,7 +174,7 @@ class DanhMucController extends Controller
         }
 
         // Cập nhật ảnh nếu có link mới
-        if ($request->filled('image_url')) {
+        if ($request->filled('image')) {
             // Vì ảnh nằm trên Cloudinary nên mình không cần lệnh unlink() hay xóa file cục bộ nữa
             try {
                 $this->deleteImageFromCloudinary($item->HinhDM);
@@ -183,7 +183,7 @@ class DanhMucController extends Controller
                 Log::error("Cloudinary Delete Error: " . $e->getMessage());
             } finally {
                 // Cập nhật link ảnh mới vào DB
-                $item->HinhDM = $request->image_url;
+                $item->HinhDM = $request->image;
             }
         }
 

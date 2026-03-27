@@ -148,7 +148,7 @@ class DanhMucController extends Controller
 
         return response()->json([
             'status' => 200,
-            'message' => 'Xoá danh mục và ảnh thành công'
+            'message' => 'Xoá danh mục thành công'
         ]);
     }
 

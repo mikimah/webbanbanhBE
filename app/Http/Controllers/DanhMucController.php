@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DanhMuc;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 // use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class DanhMucController extends Controller
@@ -82,25 +83,67 @@ class DanhMucController extends Controller
             ]);
     }
 
-    public function delete($id){
-        $item = DanhMuc::find($id);
-        if(!$item){
-            return response()->json([
-            'status' => 400,
-            'message' => 'Không tìm thấy danh mục'
+    // 1. Hàm cắt URL để lấy public_id
+    private function getPublicIdFromUrl($url) {
+        if (!$url) return null;
+        // Lấy phần tên file sau dấu / cuối cùng và trước dấu chấm (extension)
+        return pathinfo($url, PATHINFO_FILENAME);
+    }
+
+    // 2. Hàm gọi API xóa của Cloudinary
+    public function deleteImageFromCloudinary($url) {
+        $publicId = $this->getPublicIdFromUrl($url);
+        if (!$publicId) return null;
+
+        $cloudName = env('CLOUDINARY_CLOUD_NAME');
+        $apiKey = env('CLOUDINARY_API_KEY');
+        $apiSecret = env('CLOUDINARY_API_SECRET');
+        $timestamp = time();
+
+        $signature = sha1("public_id={$publicId}&timestamp={$timestamp}{$apiSecret}");
+
+        $response = Http::withOptions([
+            'verify' => false, // Fix lỗi cURL error 60 trên máy local của bạn
+        ])->post("https://api.cloudinary.com/v1_1/{$cloudName}/image/destroy", [
+            'public_id' => $publicId,
+            'timestamp' => $timestamp,
+            'api_key' => $apiKey,
+            'signature' => $signature,
         ]);
+
+        return $response->json();
+    }
+
+    // 3. Hàm delete danh mục đã cập nhật
+    public function delete($id) {
+        $item = DanhMuc::find($id);
+        
+        if (!$item) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy danh mục'
+            ]);
         }
-        $hasProduct= SanPham::where('MaDM',$id)->exists();
-        if($hasProduct){
+
+        $hasProduct = SanPham::where('MaDM', $id)->exists();
+        if ($hasProduct) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Không thể xoá vì còn sản phẩm thuộc danh mục này'
             ]);
         }
 
-        if ($item->HinhDM && file_exists(public_path('storage/' . $item->HinhDM))) {
-        unlink(public_path('storage/' . $item->HinhDM));
+        // XỬ LÝ XOÁ ẢNH TRÊN CLOUDINARY
+        if ($item->HinhDM) {
+            try {
+                $this->deleteImageFromCloudinary($item->HinhDM);
+            } catch (\Exception $e) {
+                // Log lỗi nếu cần nhưng vẫn tiếp tục xoá bản ghi trong DB
+                Log::error("Cloudinary Delete Error: " . $e->getMessage());
+            }
         }
+
+        // Xoá danh mục trong Database
         $item->delete();
 
         return response()->json([

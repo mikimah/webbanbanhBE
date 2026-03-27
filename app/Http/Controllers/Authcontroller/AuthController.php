@@ -19,6 +19,13 @@ class AuthController extends Controller
         ]);
     }
 
+    public function test2(){
+        return response()->json([
+            'status' => 200,
+            'message' => 'Test2 successful',
+        ]);
+    }
+
     public function getAllUsers()
     {
         $users = User::all();

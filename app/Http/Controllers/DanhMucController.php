@@ -152,35 +152,39 @@ class DanhMucController extends Controller
         ]);
     }
 
-    public function update(Request $request,$id){
+    public function update(Request $request, $id) {
         $item = DanhMuc::find($id);
-         if(!$item){
+        
+        if (!$item) {
             return response()->json([
-            'status' => 400,
-            'message' => 'Không tìm thấy danh mục'
-        ], 404);}
+                'status' => 404,
+                'message' => 'Không tìm thấy danh mục'
+            ], 404);
+        }
 
+        // Validation: Bây giờ 'image' không còn là file 'image' nữa mà là một 'string' (URL)
         $request->validate([
-        'name' => 'nullable|string|max:255',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png',
+            'name' => 'nullable|string|max:255',
+            'image_url' => 'nullable|string', // Nhận URL từ React gửi sang
         ]);
 
-        if($request->filled('name')){
+        // Cập nhật tên nếu có
+        if ($request->filled('name')) {
             $item->TenDM = $request->name;
         }
 
-        if ($request->hasFile('image')) {
-
-            // Xoá ảnh cũ
-            if ($item->HinhDM && file_exists(public_path('storage/' . $item->HinhDM))) {
-                unlink(public_path('storage/' . $item->HinhDM));
+        // Cập nhật ảnh nếu có link mới
+        if ($request->filled('image_url')) {
+            // Vì ảnh nằm trên Cloudinary nên mình không cần lệnh unlink() hay xóa file cục bộ nữa
+            try {
+                $this->deleteImageFromCloudinary($item->HinhDM);
+            } catch (\Exception $e) {
+                // Log lỗi nếu cần nhưng vẫn tiếp tục xoá bản ghi trong DB
+                Log::error("Cloudinary Delete Error: " . $e->getMessage());
+            } finally {
+                // Cập nhật link ảnh mới vào DB
+                $item->HinhDM = $request->image_url;
             }
-
-            // Lưu ảnh mới
-            $path = $request->file('image')->store('images', 'public');
-
-            // Lưu path vào DB
-            $item->HinhDM = $path;
         }
 
         $item->save();
@@ -188,8 +192,7 @@ class DanhMucController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'Cập nhật danh mục thành công',
+            'item' => $item
         ]);
-
-
     }
 }

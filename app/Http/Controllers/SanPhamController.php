@@ -59,7 +59,7 @@ class SanPhamController extends Controller
         }
 
         $items = $items->map(function ($item) {
-            $item->image_url = $this->buildImageUrl($item->HinhSP);
+            $item->image_url = $item->HinhSP;
             $item->TenDM = $item->danhMuc ? $item->danhMuc->TenDM : null;
             return $item;
         });
@@ -82,7 +82,7 @@ class SanPhamController extends Controller
         }
 
         $items = $items->map(function ($item) {
-            $item->image_url = $this->buildImageUrl($item->HinhSP);
+            $item->image_url = $item->HinhSP;
             $item->TenDM = $item->danhMuc ? $item->danhMuc->TenDM : null;
             return $item;
         });
@@ -104,7 +104,7 @@ class SanPhamController extends Controller
             ]);
         }
 
-        $item->image_url = $this->buildImageUrl($item->HinhSP);
+        $item->image_url = $item->HinhSP;
         $item->TenDM = $item->danhMuc ? $item->danhMuc->TenDM : null;
 
         return response()->json([
@@ -125,7 +125,7 @@ class SanPhamController extends Controller
         }
 
         $items = $items->map(function ($item) {
-            $item->image_url = $this->buildImageUrl($item->HinhSP);
+            $item->image_url = $item->HinhSP;
             $item->TenDM = $item->danhMuc ? $item->danhMuc->TenDM : null;
             return $item;
         });
@@ -136,50 +136,13 @@ class SanPhamController extends Controller
         ]);
     }
 
-    private function buildImageUrl($image)
-    {
-        if (!$image) {
-            return null;
-        }
-
-        if (filter_var($image, FILTER_VALIDATE_URL)) {
-            return $image;
-        }
-
-        return asset('storage/' . ltrim($image, '/'));
-    }
-
     private function getPublicIdFromUrl($url)
     {
-        if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+        if (!$url) {
             return null;
         }
 
-        $path = parse_url($url, PHP_URL_PATH);
-        if (!$path) {
-            return null;
-        }
-
-        $segments = explode('/', trim($path, '/'));
-        $uploadIndex = array_search('upload', $segments, true);
-
-        if ($uploadIndex === false) {
-            return pathinfo($url, PATHINFO_FILENAME);
-        }
-
-        $publicIdParts = array_slice($segments, $uploadIndex + 1);
-        if (!empty($publicIdParts) && preg_match('/^v\d+$/', $publicIdParts[0])) {
-            array_shift($publicIdParts);
-        }
-
-        if (empty($publicIdParts)) {
-            return null;
-        }
-
-        $lastSegment = array_pop($publicIdParts);
-        $publicIdParts[] = pathinfo($lastSegment, PATHINFO_FILENAME);
-
-        return implode('/', $publicIdParts);
+        return pathinfo($url, PATHINFO_FILENAME);
     }
 
     private function deleteImageFromCloudinary($url)
@@ -224,11 +187,7 @@ class SanPhamController extends Controller
 
         if ($item->HinhSP) {
             try {
-                if (filter_var($item->HinhSP, FILTER_VALIDATE_URL)) {
-                    $this->deleteImageFromCloudinary($item->HinhSP);
-                } elseif (file_exists(public_path('storage/' . $item->HinhSP))) {
-                    unlink(public_path('storage/' . $item->HinhSP));
-                }
+                $this->deleteImageFromCloudinary($item->HinhSP);
             } catch (\Exception $e) {
                 Log::error('Delete product image error: ' . $e->getMessage());
             }
@@ -271,10 +230,8 @@ class SanPhamController extends Controller
 
         if ($request->filled('image')) {
             try {
-                if ($item->HinhSP && filter_var($item->HinhSP, FILTER_VALIDATE_URL)) {
+                if ($item->HinhSP) {
                     $this->deleteImageFromCloudinary($item->HinhSP);
-                } elseif ($item->HinhSP && file_exists(public_path('storage/' . $item->HinhSP))) {
-                    unlink(public_path('storage/' . $item->HinhSP));
                 }
             } catch (\Exception $e) {
                 Log::error('Update product image error: ' . $e->getMessage());

@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('KhuyenMai', function (Blueprint $table) {
             $table->bigIncrements('MaKM');
-            $table->string('TenKM', 100);
+            $table->string('TenKM', 100)->unique();
             $table->string('LoaiKM', 20);
             $table->integer('GiaTri');
             $table->dateTime('NgayBD');
             $table->dateTime('NgayKT');
-            $table->string('DieuKien', 30)->nullable();
+            $table->integer('ToiThieu')->nullable();
+            $table->integer('ToiDa')->nullable();
         });
     }
 

@@ -154,11 +154,15 @@ class KhuyenMaiController extends Controller
         $request->validate([
             'TenKM' => 'required|string',
             'MaND' => 'required|integer',
+            'TongTotal' => 'required|integer|min:0'
         ], [
             'TenKM.required' => 'Tên khuyến mãi là bắt buộc',
             'TenKM.string' => 'Tên khuyến mãi phải là chuỗi ký tự',
             'MaND.required' => 'Mã người dùng là bắt buộc',
             'MaND.integer' => 'Mã người dùng phải là số nguyên',
+            'TongTotal.required' => 'Tổng giá trị là bắt buộc',
+            'TongTotal.integer' => 'Tổng giá trị phải là số nguyên',
+            'TongTotal.min' => 'Tổng giá trị phải lớn hơn hoặc bằng 0',
         ]);
 
         // Kiểm tra xem tên khuyến mãi có tồn tại không
@@ -192,10 +196,38 @@ class KhuyenMaiController extends Controller
             ], 400);
         }
 
+        $tongTotal = $request->TongTotal;
+        $giaTriKhuyenMai = $khuyenMai->GiaTri;
+        $kieuKhuyenMai = $khuyenMai->LoaiKM;
+        $minTotal = $khuyenMai->ToiThieu ?? 0;
+        $maxTotal = $khuyenMai->ToiDa ?? PHP_INT_MAX;
+
+        if ($tongTotal < $minTotal ) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Tổng giá trị không hợp lệ',
+            ], 400);
+        }
+
+        if ($kieuKhuyenMai === 'percentage') {
+            $giaTriGiam = $tongTotal * ($giaTriKhuyenMai / 100);
+            if($giaTriGiam >= $maxTotal) {
+                $giaTriGiam = $maxTotal;
+            }
+        } else {
+            $giaTriGiam = $giaTriKhuyenMai;
+            if($giaTriGiam >= $maxTotal) {
+                $giaTriGiam = $maxTotal;
+            }
+        }
+
+        $tongTotalSauGiam = max($tongTotal - $giaTriGiam, 0);
+
         return response()->json([
             'status' => 200,
             'message' => 'Khuyến mãi hợp lệ',
-            'data' => $khuyenMai,
+            'item' => $khuyenMai,
+            'tongTotalSauGiam' => $tongTotalSauGiam,
         ]);
     }
 }

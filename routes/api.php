@@ -45,7 +45,7 @@ Route::get('/order/search', [DonHangController::class, 'getByDate'])->middleware
 
 
 Route::get('/coupon', [KhuyenMaiController::class, 'getAll']);
-Route::get('/coupon/check', [KhuyenMaiController::class, 'check'])->middleware('auth:sanctum');
+Route::post('/coupon/apply', [KhuyenMaiController::class, 'check'])->middleware('auth:sanctum');
 Route::post('/coupon', [KhuyenMaiController::class, 'add'])->middleware(['auth:sanctum','VaiTro:admin']);
 Route::delete('/coupon/{id}', [KhuyenMaiController::class, 'delete'])->middleware(['auth:sanctum','VaiTro:admin']);
 Route::post('/coupon/{id}', [KhuyenMaiController::class, 'update'])->middleware(['auth:sanctum','VaiTro:admin']);

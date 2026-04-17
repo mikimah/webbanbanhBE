@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\KhuyenMai;
+use App\Models\DonHang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class KhuyenMaiController extends Controller
 {
@@ -176,17 +178,22 @@ class KhuyenMaiController extends Controller
         }
 
         // Kiểm tra xem còn hạn không
-        $now = now();
-        if ($now < $khuyenMai->NgayBD || $now > $khuyenMai->NgayKT) {
+        $now = Carbon::now()->format('d/m/Y');
+        $ngayBD = Carbon::parse($khuyenMai->NgayBD)->format('d/m/Y');
+        $ngayKT = Carbon::parse($khuyenMai->NgayKT)->format('d/m/Y');
+
+        if ( $now > $ngayKT) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Khuyến mãi đã hết hạn',
             ], 400);
         }
 
+        $temp = KhuyenMai::where('TenKM', $request->TenKM)->first();
+
         // Kiểm tra xem người dùng đã dùng khuyến mãi này chưa
         $donHangDaSuDung = DonHang::where('MaND', $request->MaND)
-            ->where('MaKM', $khuyenMai->MaKM)
+            ->where('MaKM', $temp->MaKM)
             ->exists();
 
         if ($donHangDaSuDung) {
@@ -199,8 +206,8 @@ class KhuyenMaiController extends Controller
         $tongTotal = $request->TongTotal;
         $giaTriKhuyenMai = $khuyenMai->GiaTri;
         $kieuKhuyenMai = $khuyenMai->LoaiKM;
-        $minTotal = $khuyenMai->ToiThieu ?? 0;
-        $maxTotal = $khuyenMai->ToiDa ?? PHP_INT_MAX;
+        $minTotal = $khuyenMai->ToiThieu;
+        $maxTotal = $khuyenMai->ToiDa == 0 ? PHP_INT_MAX : $khuyenMai->ToiDa;
 
         if ($tongTotal < $minTotal ) {
             return response()->json([
@@ -209,19 +216,17 @@ class KhuyenMaiController extends Controller
             ], 400);
         }
 
-        if ($kieuKhuyenMai === 'percentage') {
+        if ($kieuKhuyenMai === 'percent') {
             $giaTriGiam = $tongTotal * ($giaTriKhuyenMai / 100);
-            if($giaTriGiam >= $maxTotal) {
-                $giaTriGiam = $maxTotal;
-            }
         } else {
             $giaTriGiam = $giaTriKhuyenMai;
-            if($giaTriGiam >= $maxTotal) {
-                $giaTriGiam = $maxTotal;
-            }
         }
 
-        $tongTotalSauGiam = max($tongTotal - $giaTriGiam, 0);
+        if($giaTriGiam >= $maxTotal) {
+            $giaTriGiam = $maxTotal;
+        }
+
+        $tongTotalSauGiam = $tongTotal - $giaTriGiam;
 
         return response()->json([
             'status' => 200,

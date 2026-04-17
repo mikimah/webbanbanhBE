@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\DonHang;
 use App\Models\ChiTietDonHang;
+use App\Models\KhuyenMai;
 
 class DonHangController extends Controller
 {
@@ -12,17 +13,22 @@ class DonHangController extends Controller
     {
         $request->validate([
             'user'=>'nullable|integer|exists:NguoiDung,MaND',
+            'coupon'=>'nullable|string|exists:KhuyenMai,TenKM',
             'phone'=>'required|string|max:15',
             'address'=>'required|string|max:255',
 
         ],[
             'user.exists' => 'Người dùng không tồn tại.',
+            'coupon.exists' => 'Mã khuyến mãi không tồn tại.',
             'phone.required' => 'Số điện thoại là bắt buộc.',
             'address.required' => 'Địa chỉ là bắt buộc.',
         ]);
 
+        $temp = KhuyenMai::where('TenKM', $request->coupon)->first();
+
         $donHang = DonHang::create([
             'MaND' => $request->user,
+            'MaKM' => $temp ? $temp->MaKM : null,
             'SoLienHe' => $request->phone,
             'DiaChiGiao' => $request->address,
             'NgayDat' => now(),
